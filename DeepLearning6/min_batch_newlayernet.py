@@ -1,0 +1,273 @@
+import numpy as np
+import minst as Minst
+import newtowlayernet as Newtwolayernet
+import preprocessing as Preprocessing
+import random
+#优化器
+
+import SGD as sgd
+import Momentum as momentum
+import AdaGrad as adagrad
+import Adam as adam
+#import Nesterov as nesterov
+
+import matplotlib.pylab as plt
+
+#读入数据  
+train_images=Preprocessing.normalize(Minst.get_train_images())
+train_lables=Preprocessing.one_hot(Minst.get_train_lables())
+test_images=Preprocessing.normalize(Minst.get_test_images())
+test_lables=Preprocessing.one_hot(Minst.get_test_lables())
+
+#超参数
+iters_num=1000
+train_size=train_images.shape[0]
+test_size=test_images.shape[0]
+batch_size=100
+learning_rate=0.002
+
+#SGD
+train_loss_list0=[]
+train_acc_list0=[]
+test_acc_list0=[]
+
+#Momentum
+train_loss_list1=[]
+train_acc_list1=[]
+test_acc_list1=[]
+
+#AdaGrad
+train_loss_list2=[]
+train_acc_list2=[]
+test_acc_list2=[]
+
+#Adam
+train_loss_list3=[]
+train_acc_list3=[]
+test_acc_list3=[]
+
+'''
+#存放梯度 监控 
+w1_list=[]
+b1_list=[]
+w2_list=[]
+b2_list=[]
+'''
+
+
+'''
+#存放参数监控
+b2_value_list=[]
+b1_value_list=[]
+w1_value_list=[]
+w2_value_list=[]
+value={'w1':w1_value_list,'w2':w2_value_list,'b1':b1_value_list,'b2':b2_value_list}
+'''#现在这个没用了
+for s in range(4):
+    iter_per_epoch=max(train_size/batch_size,1)
+
+    network=Newtwolayernet.newtwolayernet(input_size=784,hidden_size=50,output_size=10,batch_size=100)
+    #优化器
+    if s == 0:
+        optimizer=sgd.SGD(learning_rate)#学习率设置0.002
+        for i in range(iters_num):
+            batch_mask=np.random.choice(train_size,batch_size)
+            train_images_batch=train_images[batch_mask]
+            train_lables_batch=train_lables[batch_mask]
+
+            #通过 误差 反向传播算法求 梯度 
+            grad=network.gradient(train_images_batch,train_lables_batch)
+            '''
+            w1_list.append(np.mean(grad['w1']))
+            b1_list.append(np.mean(grad['b1']))
+            w2_list.append(np.mean(grad['w2']))
+            b2_list.append(np.mean(grad['b2']))
+            '''
+
+            #更 新
+            '''
+            for key in ('w1','b1','w2','b2'):
+                #value[key].append(np.mean(network.params[key]))#记录值
+                network.params[key]-=learning_rate*grad[key]
+                '''
+            #优化
+            optimizer.update(network.params,grad)
+
+                
+
+            loss=network.loss(train_images_batch,train_lables_batch)
+            train_loss_list0.append(loss)
+    '''
+            if i%iter_per_epoch==0:
+                batch_mask=np.random.choice(test_size,batch_size)
+                test_images_batch=test_images[batch_mask]
+                test_lables_batch=test_lables[batch_mask]
+                train_acc=network.accuracy(train_images_batch,train_lables_batch)
+                test_acc=network.accuracy(test_images_batch,test_lables_batch)
+                train_acc_list0.append(train_acc)
+                test_acc_list0.append(test_acc)
+                print('train_acc:'+str(train_acc))
+                print("test_acc:"+str(test_acc))
+                '''
+    if s == 1:
+        optimizer=momentum.Momentum(learning_rate)#学习率设置0.01
+        for i in range(iters_num):
+            batch_mask=np.random.choice(train_size,batch_size)
+            train_images_batch=train_images[batch_mask]
+            train_lables_batch=train_lables[batch_mask]
+
+            #通过 误差 反向传播算法求 梯度 
+            grad=network.gradient(train_images_batch,train_lables_batch)
+            '''
+            w1_list.append(np.mean(grad['w1']))
+            b1_list.append(np.mean(grad['b1']))
+            w2_list.append(np.mean(grad['w2']))
+            b2_list.append(np.mean(grad['b2']))
+            '''
+
+            #更 新
+            '''
+            for key in ('w1','b1','w2','b2'):
+                #value[key].append(np.mean(network.params[key]))#记录值
+                network.params[key]-=learning_rate*grad[key]
+                '''
+            #优化
+            optimizer.update(network.params,grad)
+
+                
+
+            loss=network.loss(train_images_batch,train_lables_batch)
+            train_loss_list1.append(loss)
+    '''
+            if i%iter_per_epoch==0:
+                batch_mask=np.random.choice(test_size,batch_size)
+                test_images_batch=test_images[batch_mask]
+                test_lables_batch=test_lables[batch_mask]
+                train_acc=network.accuracy(train_images_batch,train_lables_batch)
+                test_acc=network.accuracy(test_images_batch,test_lables_batch)
+                train_acc_list1.append(train_acc)
+                test_acc_list1.append(test_acc)
+                print('train_acc:'+str(train_acc))
+                print("test_acc:"+str(test_acc))
+                '''
+    if s == 2:
+        optimizer=adagrad.AdaGrad(learning_rate)
+        for i in range(iters_num):
+            batch_mask=np.random.choice(train_size,batch_size)
+            train_images_batch=train_images[batch_mask]
+            train_lables_batch=train_lables[batch_mask]
+
+            #通过 误差 反向传播算法求 梯度 
+            grad=network.gradient(train_images_batch,train_lables_batch)
+            '''
+            w1_list.append(np.mean(grad['w1']))
+            b1_list.append(np.mean(grad['b1']))
+            w2_list.append(np.mean(grad['w2']))
+            b2_list.append(np.mean(grad['b2']))
+            '''
+
+            #更 新
+            '''
+            for key in ('w1','b1','w2','b2'):
+                #value[key].append(np.mean(network.params[key]))#记录值
+                network.params[key]-=learning_rate*grad[key]
+                '''
+            #优化
+            optimizer.update(network.params,grad)
+
+                
+
+            loss=network.loss(train_images_batch,train_lables_batch)
+            train_loss_list2.append(loss)
+    '''
+            if i%iter_per_epoch==0:
+                batch_mask=np.random.choice(test_size,batch_size)
+                test_images_batch=test_images[batch_mask]
+                test_lables_batch=test_lables[batch_mask]
+                train_acc=network.accuracy(train_images_batch,train_lables_batch)
+                test_acc=network.accuracy(test_images_batch,test_lables_batch)
+                train_acc_list2.append(train_acc)
+                test_acc_list2.append(test_acc)
+                print('train_acc:'+str(train_acc))
+                print("test_acc:"+str(test_acc))
+                '''
+    if s == 3:
+        optimizer=adam.Adam()
+        for i in range(iters_num):
+            batch_mask=np.random.choice(train_size,batch_size)
+            train_images_batch=train_images[batch_mask]
+            train_lables_batch=train_lables[batch_mask]
+
+            #通过 误差 反向传播算法求 梯度 
+            grad=network.gradient(train_images_batch,train_lables_batch)
+            '''
+            w1_list.append(np.mean(grad['w1']))
+            b1_list.append(np.mean(grad['b1']))
+            w2_list.append(np.mean(grad['w2']))
+            b2_list.append(np.mean(grad['b2']))
+            '''
+
+            #更 新
+            '''
+            for key in ('w1','b1','w2','b2'):
+                #value[key].append(np.mean(network.params[key]))#记录值
+                network.params[key]-=learning_rate*grad[key]
+                '''
+            #优化
+            optimizer.update(network.params,grad)
+
+                
+
+            loss=network.loss(train_images_batch,train_lables_batch)
+            train_loss_list3.append(loss)
+    '''
+            if i%iter_per_epoch==0:
+                batch_mask=np.random.choice(test_size,batch_size)
+                test_images_batch=test_images[batch_mask]
+                test_lables_batch=test_lables[batch_mask]
+                train_acc=network.accuracy(train_images_batch,train_lables_batch)
+                test_acc=network.accuracy(test_images_batch,test_lables_batch)
+                train_acc_list3.append(train_acc)
+                test_acc_list3.append(test_acc)
+                print('train_acc:'+str(train_acc))
+                print("test_acc:"+str(test_acc))
+                '''
+    #optimizer=nesterov.Nesterov()
+y_loss0=train_loss_list0#损失函数数据
+y_loss1=train_loss_list1#损失函数数据
+y_loss2=train_loss_list2#损失函数数据
+y_loss3=train_loss_list3#损失函数数据
+x_loss=np.arange(iters_num)#生成100个元素的1*100数组做x轴
+x=x_loss#损失函数x轴
+'''
+y_train_acc0=train_acc_list0#训练数据正确率
+y_test_acc0=test_acc_list#测试数据正确率
+y_train_acc1=train_acc_list#训练数据正确率
+y_test_acc1=test_acc_list#测试数据正确率
+y_train_acc2=train_acc_list#训练数据正确率
+y_test_acc2=test_acc_list#测试数据正确率
+y_train_acc3=train_acc_list#训练数据正确率
+y_test_acc3=test_acc_list#测试数据正确率
+'''
+x_acc=np.arange(0,iters_num+1,600)#x_acc=[0,600,1200]
+plt.title(str(iters_num)+'times learning picture')
+plt.plot(x,y_loss0,color='red',label='loss_sgd')
+#梯度情况
+plt.plot(x,y_loss1,color='black',label='loss_movemum')
+plt.plot(x,y_loss2,color='yellow',label='loss_AdaGrad')
+plt.plot(x,y_loss3,color='orange',label='loss_adam')
+
+#plt.plot(x,b2_list,color='green',label='b2_d')
+'''#参数情况
+plt.plot(x,value['w1'],color='black',label='w1')
+plt.plot(x,value['b1'],color='yellow',label='b1')
+plt.plot(x,value['w2'],color='orange',label='w2')
+plt.plot(x,value['b2'],color='green',label='b2')
+'''
+
+#plt.plot(x_acc,y_train_acc,color='pink',label='train_acc')
+#plt.plot(x_acc,y_test_acc,color='blue',label='test_acc')
+plt.legend()#显示图列
+plt.xlabel('learing by times')
+plt.ylabel('accuarcy  and loss')
+plt.show()
